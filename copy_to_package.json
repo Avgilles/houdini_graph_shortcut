@@ -1,0 +1,12 @@
+{
+    "load_package_once": true,
+    "env" : 
+      [
+          {
+              "HOUDINI_PATH":{
+                "value": "C:/github/houdini_graph_shortcut",
+                "method": "append"
+              }
+          }
+      ]
+}

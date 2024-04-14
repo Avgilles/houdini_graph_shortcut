@@ -1,0 +1,6 @@
+{
+    "HOTKEYS_NODEGRAPH" : {
+        "h.pane.wsheet:speed_graph":"X"
+    },
+    "DEPENDENCY_LINK_NODE_ALLOWED" : ["null", "object_merge", "dopnet"]
+}

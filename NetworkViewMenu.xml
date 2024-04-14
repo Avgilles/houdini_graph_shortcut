@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    This file defines the menu items in the Houdini Network View pane.
+    Files named the same (ie. NetworkViewMenu.xml) can exist in
+    $HOME/houdiniX.Y/ directory and will supplement the original definitions
+    found in $HFS/houdini/ (aka $HH).
+    The format in this file is similar to the format in $HH/MainMenuMaster.
+    See the comments in that file for more advanced customization abilities.
+    
+    Note that the id's correspond to their hotkeys with the h. prefix. Please
+    use ids that begin with playbar. when adding new items.
+    For scriptItem elements, a 'kwargs' python dictionary is provided with the
+    following values:
+    'parms'     :   A list of hou.Parm objects which the script was invoked
+            upon.
+    'toolname'  :   The menu item's hotkey id 
+    'altclick'  :   True if the Alt key was also pressed, False otherwise
+    'ctrlclick'  :  True if the Ctrl key was also pressed, False otherwise
+    'shiftclick'  : True if the Shift key was also pressed, False otherwise
+    'cmdclick'  :   True if the Option key was also pressed, False
+            otherwise. Note that this can only be true on OSX.
+-->
+<mainMenu>
+    <menuBar>
+        <subMenu id="view_menu">
+<!-- add call back for heiglight connected node -->
+            <scriptMenuStripRadio>
+            <insertAfter>dependency_title</insertAfter>
+            <variableName>PREF_DEPENDENCY</variableName> 
+            <value>showdep</value>
+            <scriptRadioItem id="pane.wsheet.showdepnone_script">
+                <label>Hide</label>
+                <variableValue>0</variableValue> 
+        <scriptCode><![CDATA[
+import nodegraphprefs as prefs
+editor = kwargs["editor"]
+prefs.setShowDependencies(editor, 0)
+hou.hscript("set -g PREF_DEPENDENCY=0")
+hou.session.pref_dependency = 0
+]]></scriptCode>
+            </scriptRadioItem>
+            <scriptRadioItem id="pane.wsheet.showdepselected_script">
+                <label>Show for Selected Nodes</label>
+                <variableValue>1</variableValue> 
+        <scriptCode><![CDATA[
+import nodegraphprefs as prefs
+editor = kwargs["editor"]
+prefs.setShowDependencies(editor, 1)
+hou.hscript("set -g PREF_DEPENDENCY=1")
+hou.session.pref_dependency = 1
+]]></scriptCode>
+            </scriptRadioItem>
+            <scriptRadioItem id="pane.wsheet.showdepall_script">
+                <label>Show for All Nodes</label>
+                <variableValue>2</variableValue> 
+        <scriptCode><![CDATA[
+import nodegraphprefs as prefs
+editor = kwargs["editor"]
+prefs.setShowDependencies(editor, 2)
+hou.hscript("set -g PREF_DEPENDENCY=2")
+hou.session.pref_dependency = 2
+]]></scriptCode>
+            </scriptRadioItem>
+        </scriptMenuStripRadio>
+    </subMenu>
+</menuBar>
+<!-- remove prexistant element -->
+<removeItem id="pane.wsheet.showdepnone"/>
+<removeItem id="pane.wsheet.showdepselected"/>
+<removeItem id="pane.wsheet.showdepall"/>
+</mainMenu>
