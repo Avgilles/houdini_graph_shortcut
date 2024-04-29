@@ -129,7 +129,18 @@ def move_bellow_node(node, parent):
             child.setPosition(pos)
 
 
-# TODO : SET RELATIVE
+def create_fetch(node):
+    if isinstance(node, hou.LopNode):
+        merge_node = node.parent().createNode("fetch")
+        # merge_node.parm("objpath1").set(merge_node.relativePathTo(node))
+        merge_node.parm("loppath").set(node.path())
+        node_name = node.name()
+        if node_name.startswith("OUT"):
+            node_name = node_name.replace("OUT_", "IN_")
+        merge_node.setName(node_name, unique_name=True)
+        merge_node.setPosition(node.position() + hou.Vector2(0, -2))
+        return merge_node
+
 def create_merge(node):
     if isinstance(node, hou.SopNode):
         merge_node = node.parent().createNode("object_merge")
@@ -156,6 +167,25 @@ def copy_merge(node):
             print(path)
         with hou.undos.disabler():
             merge_node = create_merge(node)
+            merge_node.setUserData("id_null", str(node.sessionId()))
+            reset_comment_after_delay(node, "Copied in clipboard !")
+            hou.copyNodesToClipboard((merge_node,))
+            merge_node.destroy()
+
+# TODO: refacto with copy_merge
+def copy_merge_lop(node):
+    if isinstance(node, hou.LopNode):
+        path = node.path()
+        try:
+            from PySide2 import QtWidgets
+
+            cb = QtWidgets.QApplication.clipboard()
+            cb.clear(mode=cb.Clipboard)
+            cb.setText(str(path), mode=cb.Clipboard)
+        except Exception:
+            print(path)
+        with hou.undos.disabler():
+            merge_node = create_fetch(node)
             merge_node.setUserData("id_null", str(node.sessionId()))
             reset_comment_after_delay(node, "Copied in clipboard !")
             hou.copyNodesToClipboard((merge_node,))
@@ -323,9 +353,11 @@ def set_pos_merge_node(node):
 
 
 def create_merge_from_input(node):
+    print(node)
     if isinstance(node, hou.Node):
         n_pos = node.position()
         inputs = node.inputConnections()
+        print(inputs)
         offset_beetween = 2.5
         max_dist = offset_beetween * len(inputs)
 
@@ -442,18 +474,17 @@ def nodegraph_hou_19(uievent, pending_actions):
                         create_speed_graph(item)
                         return None, True
                 if isinstance(item, hou.SopNode):
-                    if item.type().name() in ("object_merge"):
+                    if item.type().name() == "object_merge":
                         with hou.undos.group("Place merge node"):
                             set_pos_merge_node(item)
                             return None, True
                     with hou.undos.group("Create speed graph merge"):
                         create_merge_from_input(item)
                         return None, True
-                if panes.isVolatileHotkeyDown(hotkey_cmd("X")):
+                if panes.isVolatileKeyDown(key=HOTKEY_CREATE_NULL):
                     with hou.undos.group("Create object merge Shortcut"):
                         item = uievent.selected.item
                         parent_node = hou.node(panes.pwd().path())
-                        print("hey")
                         create_merge_alone("object_merge", parent_node, mouse_pos)
                         return None, False
         if uievent.eventtype == "mousedown" and uievent.mousestate.lmb:
@@ -465,7 +496,10 @@ def nodegraph_hou_19(uievent, pending_actions):
                 if item.type().name() == "null":
                     with double_click_with_element(selected) as n:
                         if selected.name == "node":
-                            copy_merge(n)
+                            if isinstance(item, hou.SopNode):
+                                copy_merge(n)
+                            elif isinstance(item, hou.LopNode):
+                                copy_merge_lop(n)
                 if item.type().name() == "object_merge":
                     with double_click_with_element(selected) as n:
                         if selected.name == "node":
@@ -496,7 +530,7 @@ def nodegraph_hou_20(uievent, pending_actions):
                         create_speed_graph(item)
                         return None, True
                 if isinstance(item, hou.SopNode):
-                    if item.type().name() in ("object_merge"):
+                    if item.type().name() == "object_merge":
                         with hou.undos.group("Place merge node"):
                             set_pos_merge_node(item)
                             return None, True
@@ -517,7 +551,6 @@ def nodegraph_hou_20(uievent, pending_actions):
             if isinstance(item, hou.Node):
                 if item.type().name() == "null":
                     with double_click_with_element(selected) as n:
-                        print(n)
                         if selected.name == "node":
                             copy_merge(n)
                 if item.type().name() == "object_merge":

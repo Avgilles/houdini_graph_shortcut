@@ -2,7 +2,7 @@
 from __future__ import absolute_import
 import hou
 from common import hou_graph_utils as gu
-
+# import importlib
 """
 https://www.sidefx.com/docs/houdini/hom/network.html
 https://www.sidefx.com/docs/houdini/hom/locations.html
@@ -21,6 +21,7 @@ if houdini_version == 20:
 
 
 def createEventHandler(uievent, pending_actions):
+    # importlib.reload(gu)
     try:
         eventgraph(uievent, pending_actions)
     except Exception:
