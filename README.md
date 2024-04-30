@@ -36,6 +36,9 @@ Some features are planned for the future, if you have some idea, please contact 
 - Clean graph Node :
   - Multi selection connections
 
+- Object merge :
+  - filter search for only null (and the purpose of the null)
+
 ## Installation
 
 1. Copy "copy_to_package.json" into your user packages folder.
